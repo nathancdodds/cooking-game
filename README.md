@@ -75,6 +75,3 @@ POST body format:
 - `migrations/0001_init.sql` D1 schema.
 - `wrangler.toml` Cloudflare Worker and D1 configuration.
 
-## Legacy Render Files
-
-`server.py` and `render.yaml` are left in the repo as legacy files from the previous deployment setup.
