@@ -1,4 +1,5 @@
 let selectedIngredients = [];
+const INGREDIENTS_STORAGE_KEY = 'cooking-game:selected-ingredients';
 
 const ingredientInput = document.getElementById('ingredientInput');
 const addIngredientBtn = document.getElementById('addIngredient');
@@ -11,6 +12,36 @@ const addRecipeBtn = document.getElementById('addRecipeBtn');
 const recipeModal = document.getElementById('recipeModal');
 const closeModal = document.getElementById('closeModal');
 const recipeForm = document.getElementById('recipeForm');
+
+function saveSelectedIngredients() {
+    try {
+        localStorage.setItem(INGREDIENTS_STORAGE_KEY, JSON.stringify(selectedIngredients));
+    } catch (error) {
+        console.warn('Could not save selected ingredients:', error);
+    }
+}
+
+function loadSelectedIngredients() {
+    try {
+        const saved = localStorage.getItem(INGREDIENTS_STORAGE_KEY);
+        if (!saved) {
+            return;
+        }
+
+        const parsed = JSON.parse(saved);
+        if (!Array.isArray(parsed)) {
+            return;
+        }
+
+        selectedIngredients = [...new Set(
+            parsed
+                .map(item => String(item).trim().toLowerCase())
+                .filter(Boolean)
+        )];
+    } catch (error) {
+        console.warn('Could not load selected ingredients:', error);
+    }
+}
 
 function addIngredient() {
     const ingredient = ingredientInput.value.trim().toLowerCase();
@@ -35,6 +66,7 @@ function clearAll() {
 function updateUI() {
     renderIngredientTags();
     renderRecipes();
+    saveSelectedIngredients();
 }
 
 function getSearchTerm() {
@@ -343,6 +375,7 @@ closeModal.addEventListener('click', closeModalFunc);
 recipeForm.addEventListener('submit', handleAddRecipe);
 
 async function initializeApp() {
+    loadSelectedIngredients();
     await loadSharedRecipes();
     updateUI();
 }
