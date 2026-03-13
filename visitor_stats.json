@@ -1,0 +1,10 @@
+{
+  "totalVisits": 5,
+  "visitors": {
+    "tracker-test": 1,
+    "debug-visitor": 1,
+    "visitor-453f80c8": 1,
+    "check-now": 1,
+    "final-check": 1
+  }
+}
