@@ -1,61 +1,80 @@
 # Recipe Finder
 
-A simple web application that helps you find recipes based on ingredients you have at home.
+Recipe Finder is now configured for Cloudflare Workers + D1 so it can run with persistent shared recipe storage on the Cloudflare free tier.
 
-## How to Use
+## Architecture
 
-1. Open `index.html` in your web browser
-2. Type an ingredient you have (e.g., "chicken", "eggs", "tomato")
-3. Click "Add" or press Enter
-4. Keep adding more ingredients
-5. Watch as recipes appear that match your ingredients!
+- Static frontend is served from `public/` by a Worker assets binding.
+- API endpoints are handled by `src/worker.js`.
+- Shared recipes are stored in D1 (SQLite) using table schema in `migrations/0001_init.sql`.
 
-## Features
+## Local Development
 
-- **Smart Matching**: Recipes are sorted by how many ingredients you have
-- **Visual Feedback**: Green checkmarks show ingredients you have, circles show what you need
-- **Easy Management**: Remove individual ingredients or clear all at once
-- **20+ Recipes**: Includes popular dishes like Spaghetti Carbonara, Tacos, Pizza, and more
+1. Install dependencies:
+    ```bash
+    npm install
+    ```
+2. Create a D1 database in your Cloudflare account:
+    ```bash
+    npx wrangler d1 create cooking-game-db
+    ```
+3. Copy the returned database ID into `wrangler.toml` for:
+    - `database_id`
+    - `preview_database_id`
+4. Apply the schema locally:
+    ```bash
+    npm run db:migrate:local
+    ```
+5. Run the app:
+    ```bash
+    npm run dev
+    ```
 
-## Adding More Recipes
+## Deploy to Cloudflare
 
-To add your own recipes, edit `recipes.js` and add new recipe objects following this format:
+1. Authenticate Wrangler:
+    ```bash
+    npx wrangler login
+    ```
+2. Make sure `wrangler.toml` has your real D1 database ID.
+3. Apply schema to remote D1:
+    ```bash
+    npm run db:migrate:remote
+    ```
+4. Deploy Worker:
+    ```bash
+    npm run deploy
+    ```
 
-```javascript
+After deploy, the Worker URL serves both the site and API.
+
+## API
+
+- `GET /api/recipes` returns all shared recipes.
+- `POST /api/recipes` saves a shared recipe.
+
+POST body format:
+
+```json
 {
-    name: "Recipe Name",
-    ingredients: ["ingredient1", "ingredient2", "ingredient3"],
-    instructions: "Step-by-step cooking instructions here."
+  "name": "Recipe Name",
+  "ingredients": ["ingredient1", "ingredient2"],
+  "instructions": "Step-by-step instructions",
+  "source": "Optional source name",
+  "sourceUrl": "https://optional-source-url.example"
 }
 ```
 
-## Files
+## Project Files
 
-- `index.html` - Main HTML structure
-- `styles.css` - All styling and animations
-- `recipes.js` - Recipe database
-- `app.js` - Application logic and UI interactions
+- `src/worker.js` Cloudflare Worker API and static asset gateway.
+- `public/index.html` main page.
+- `public/app.js` frontend logic.
+- `public/styles.css` styles.
+- `public/recipes.js` built-in recipe list.
+- `migrations/0001_init.sql` D1 schema.
+- `wrangler.toml` Cloudflare Worker and D1 configuration.
 
-Enjoy cooking!
+## Legacy Render Files
 
-## Deploy (Render)
-
-1. Push this project to a GitHub repository.
-2. In Render, click **New +** -> **Blueprint**.
-3. Connect your GitHub repo and choose this project.
-4. Render will detect `render.yaml` and create the web service.
-5. Deploy and open the generated URL.
-
-Render will run `python server.py` and automatically set the `PORT` environment variable.
-Recipes are stored in a SQLite database file (`recipe_finder.db`) and the app can use `DATA_DIR` for where that file lives.
-
-### Important Data Note
-
-The app now stores submitted recipes in SQLite (`recipe_finder.db`).
-
-For true cloud persistence on Render:
-1. Use a plan that supports persistent disks.
-2. In `render.yaml`, uncomment the `disks` section.
-3. Keep `DATA_DIR=/var/data` so the SQLite file is written to the mounted disk.
-
-Without a persistent disk, data can still reset on restart/redeploy.
+`server.py` and `render.yaml` are left in the repo as legacy files from the previous deployment setup.
