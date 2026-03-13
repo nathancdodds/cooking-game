@@ -1,6 +1,8 @@
 name = "cooking-game"
 main = "src/worker.js"
 compatibility_date = "2026-03-12"
+workers_dev = true
+preview_urls = true
 
 [assets]
 directory = "./public"
@@ -9,5 +11,5 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "cooking-game-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
-preview_database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "c972a505-94ba-49e3-9e2a-123550689cd3"
+preview_database_id = "c972a505-94ba-49e3-9e2a-123550689cd3"
